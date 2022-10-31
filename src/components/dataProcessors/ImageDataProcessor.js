@@ -1,20 +1,32 @@
 const fs = require("fs");
 const PDFDocument = require('pdfkit');
 const {DataProcessor} = require("./DataProcessor");
+const ImagesOptimizer = require("../ImagesOptimizer/ImagesOptimizer");
+const FilesCollection = require("../FilesCollection/FilesCollection");
+const File = require("../FilesCollection/File");
 const Neuron = require("../QualityDefinerNeuron/QualityDefinerNeuron");
+const CONFIG = require("../../config");
 
 class ImageDataProcessor extends DataProcessor {
     _inputFilesCollection = null;
     _outputFile = null;
     _optimizer = null;
     _qualityDefinerNeuron = null;
+    _PDF_IMAGE_STYLE = {
+        width: 615,
+        height: 800
+    };
 
     constructor({optimizer}) {
+        if (!(optimizer instanceof ImagesOptimizer))
+            throw new Error("[ImageDataProcessor]: optimizer should be an instance of ImagesOptimizer");
         super();
         this._optimizer = optimizer;
     }
 
     read({filesCollection}) {
+        if (!(filesCollection instanceof FilesCollection))
+            throw new Error(this._signString("filesCollection should be an instance of FilesCollection"));
         this._outputFile = null;
         this._inputFilesCollection = filesCollection;
 
@@ -29,10 +41,21 @@ class ImageDataProcessor extends DataProcessor {
      * @return {Promise<void>}
      */
     async run({file, quality = null, maxSize = null}) {
+        if (!(file instanceof File) ||
+            (quality && (quality < CONFIG.MIN_IMAGE_QUALITY || quality > CONFIG.MAX_IMAGE_QUALITY)) ||
+            (maxSize && maxSize < CONFIG.MIN_PDF_SIZE)
+        ) {
+            throw new Error(this._signString("invalid arguments"));
+        }
+
         this._outputFile = file;
 
         let q = quality;
-        if (!q) q = this._defineQuality(maxSize);
+        if (!q && maxSize) {                    // if quality isn't stated, but we have max size, we should calc quality automatically
+            q = this._defineQuality(maxSize);
+            if (q < CONFIG.MIN_IMAGE_QUALITY || q > CONFIG.MIN_IMAGE_QUALITY)
+                throw new Error(this._signString("Defining quality automatically failed"));
+        }
 
         await this._optimize(q);
 
@@ -50,6 +73,8 @@ class ImageDataProcessor extends DataProcessor {
     }
 
     _optimize = async (quality) => {
+        if (quality < CONFIG.MIN_IMAGE_QUALITY || quality > CONFIG.MAX_IMAGE_QUALITY)
+            throw new Error(this._signString("Quality isn't in bounds"));
         console.log(this._signString("Optimizing..."));
         await this._optimizer.optimize({
             files: this._inputFilesCollection.getFiles(),
@@ -62,7 +87,7 @@ class ImageDataProcessor extends DataProcessor {
     _fulfillOutputFile() {
         console.log(this._signString("Creating pdf file..."));
 
-        const doc = new PDFDocument({size: 'A4'});
+        const doc = new PDFDocument();
 
         doc.pipe(fs.createWriteStream(this._outputFile.filePath));
 
@@ -72,10 +97,7 @@ class ImageDataProcessor extends DataProcessor {
         for (let file of files) {
             if (isNewPage) doc.addPage();
 
-            doc.image(file.filePath, 0, 0, {
-                width: 615,
-                height: 800
-            });
+            doc.image(file.filePath, 0, 0, this._PDF_IMAGE_STYLE);
 
             isNewPage = true;
         }

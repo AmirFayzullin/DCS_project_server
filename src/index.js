@@ -22,7 +22,7 @@ const main = () => {
 
     imageDataProcessor.run({
         file: new File({filePath: `${__dirname}/../files/outputs/output.pdf`}),
-        maxSize: 20,
+        quality: 100,
     });
 };
 
