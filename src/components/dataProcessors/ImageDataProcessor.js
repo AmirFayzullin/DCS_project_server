@@ -1,11 +1,16 @@
 const fs = require("fs");
 const PDFDocument = require('pdfkit');
-const Jimp = require("jimp");
 const {DataProcessor} = require("./DataProcessor");
 
 class ImageDataProcessor extends DataProcessor {
     _inputFilesCollection = null;
     _outputFile = null;
+    _optimizer = null;
+
+    constructor({optimizer}) {
+        super();
+        this._optimizer = optimizer;
+    }
 
     read({filesCollection}) {
         this._outputFile = null;
@@ -14,24 +19,17 @@ class ImageDataProcessor extends DataProcessor {
         this._inputFilesCollection.open();
     }
 
+    /**
+     * implements data processing flow
+     * @param {File} file - output pdf file
+     * @return {Promise<void>}
+     */
     async run({file}) {
         this._outputFile = file;
-        const doc = new PDFDocument({size: 'A4'});
 
-        doc.pipe(fs.createWriteStream(file.filePath));
+        await this._optimize(90);
 
-        await this._optimize(1);
-
-        for (let i in this._inputFilesCollection.files) {
-            if (+i) doc.addPage();
-
-            doc.image(this._inputFilesCollection.files[i].filePath, 0, 0, {
-                width: 615,
-                height: 800
-            });
-        }
-
-        doc.end();
+        this._fulfillOutputFile();
 
         return Promise.resolve();
     }
@@ -45,14 +43,34 @@ class ImageDataProcessor extends DataProcessor {
     }
 
     _optimize = async (quality) => {
-        console.log(this._signString("optimizong..."));
-        await Promise.all(
-            this._inputFilesCollection.files.map(async file => {
-                const image = await Jimp.read(file.filePath);
-                await image.quality(quality);
-                await image.writeAsync(file.filePath);
-            })
-        );
+        console.log(this._signString("Optimizing..."));
+        await this._optimizer.optimize({
+            files: this._inputFilesCollection.files,
+            quality
+        });
+
+        console.log(this._signString("Optimizing finished"));
+    }
+
+    _fulfillOutputFile() {
+        console.log(this._signString("Creating pdf file..."));
+
+        const doc = new PDFDocument({size: 'A4'});
+
+        doc.pipe(fs.createWriteStream(this._outputFile.filePath));
+
+        for (let i in this._inputFilesCollection.files) {
+            if (+i) doc.addPage();
+
+            doc.image(this._inputFilesCollection.files[i].filePath, 0, 0, {
+                width: 615,
+                height: 800
+            });
+        }
+
+        doc.end();
+
+        console.log(this._signString("Creating pdf file finished"));
     }
 }
 

@@ -13,7 +13,7 @@ class DataProcessorFactory {
     static createDataProcessor(options) {
         switch(options.type) {
             case DATA_PROCESSOR_TYPES.IMAGE:
-                return new ImageDataProcessor();
+                return new ImageDataProcessor(options.params);
             default:
                 return null;
         }
