@@ -3,11 +3,19 @@ const FilesCollection = require("./components/FilesCollection/FilesCollection");
 const File = require("./components/FilesCollection/File");
 const ImagesOptimizer = require("./components/ImagesOptimizer/ImagesOptimizer");
 const JimpOptimizerStrategy = require("./components/ImagesOptimizer/JimpOptimizerStrategy");
+const Input = require("./components/Input");
+const ProcessingParameters = require("./components/ProcessingParameters");
 
 const main = () => {
     const filesCollection = new FilesCollection({
         dirPath: `${__dirname}/../files/inputs`,
     });
+
+    const processingParameters = new ProcessingParameters({
+        quality: 90
+    });
+
+    const input = new Input({filesCollection, processingParameters});
 
     const imageDataProcessor = DataProcessorFactory.createDataProcessor({
         type: DATA_PROCESSOR_TYPES.IMAGE,
@@ -18,11 +26,11 @@ const main = () => {
         }
     });
 
-    imageDataProcessor.read({filesCollection});
+    imageDataProcessor.read({filesCollection: input.filesCollection});
 
     imageDataProcessor.run({
         file: new File({filePath: `${__dirname}/../files/outputs/output.pdf`}),
-        quality: 100,
+        quality: input.processingParameters.quality
     });
 };
 
