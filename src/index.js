@@ -21,7 +21,8 @@ const main = () => {
     imageDataProcessor.read({filesCollection});
 
     imageDataProcessor.run({
-        file: new File({filePath: `${__dirname}/../files/outputs/output.pdf`})
+        file: new File({filePath: `${__dirname}/../files/outputs/output.pdf`}),
+        maxSize: 20,
     });
 };
 
