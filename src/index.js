@@ -30,7 +30,7 @@ const main = () => {
 
     imageDataProcessor.run({
         file: new File({filePath: `${__dirname}/../files/outputs/output.pdf`}),
-        quality: input.processingParameters.quality
+        processingParameters
     });
 };
 
