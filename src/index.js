@@ -71,34 +71,39 @@ const main = async () => {
 
     const db = await initDBApi();
 
-    const user = await db.user.add({
-        email: "someEmail@gmail.com",
-        password: "myPass"
-    });
-
-    const collection = await db.collection.add({
-        userId: 1,
-        dateProcessed: (new Date).toLocaleDateString(),
-        files: [
-            {
-                path: '/path/img1.jpg',
-                type: 'input'
-            },
-            {
-                path: '/path/img2.jpg',
-                type: 'input'
-            },
-            {
-                path: '/path/out.pdf',
-                type: 'output'
-            },
-        ]
-    });
-
-    console.log(collection);
-
-    const files = await db.collection.getFiles({collectionId: collection.id});
-    console.log(files);
+    // const user = await db.user.add({
+    //     email: "someEmail@gmail.com",
+    //     password: "myPass"
+    // });
+    //
+    // const collection = await db.collection.add({
+    //     userId: 1,
+    //     dateProcessed: (new Date).toLocaleDateString(),
+    //     files: [
+    //         {
+    //             path: '/path/img1.jpg',
+    //             type: 'input'
+    //         },
+    //         {
+    //             path: '/path/img2.jpg',
+    //             type: 'input'
+    //         },
+    //         {
+    //             path: '/path/out.pdf',
+    //             type: 'output'
+    //         },
+    //     ]
+    // });
+    //
+    // console.log(collection);
+    //
+    // const files = await db.collection.getFiles({collectionId: collection.id});
+    // console.log(files);
+    //
+    // await db.collection.share({
+    //     collectionId: collection.id,
+    //     password: "something"
+    // });
 };
 
 main();

@@ -36,6 +36,14 @@ class CollectionApi {
             .run(`delete from Files where id = ${collectionId};`);
     };
 
+    share = ({collectionId, password}) => {
+        this._dbapi._db.run(`update Files set isShared=1, sharingPassword="${password}" where id=${collectionId}`);
+    };
+
+    unshare = ({collectionId}) => {
+        this._dbapi._db.run(`update Files set isShared=NULL, sharingPassword=NULL where id=${collectionId}`)
+    };
+
     getAll = ({userId}) => {
         return new Promise((res, rej) => {
             this._dbapi._db.all(`SELECT * from Files where userId = ?`, [userId], (err, rows) => {

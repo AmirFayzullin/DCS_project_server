@@ -35,6 +35,21 @@ class UserApi {
             });
         });
     }
+
+    createVerificationCode = ({userId, code, actionType, action = "", dateRequested}) => {
+        this._dbapi._db.run(
+            `INSERT into VerificationCode (userId, code, actionType, action, dateRequested) 
+            values ("${userId}", "${code}", ${actionType}, "${action}", "${dateRequested}");`
+        );
+    };
+
+    removeVerificationCode = ({userId, actionType}) => {
+        return new Promise((res, rej) => {
+            this._dbapi._db.run(`delete from VerificationCode where userId = ${userId} and actionType = "${actionType}";`, (err, row) => {
+                res(row);
+            })
+        });
+    }
 }
 
 module.exports = UserApi;
