@@ -1,20 +1,22 @@
 const DBAPI = require("./DBAPI");
 const sqlite3 = require("sqlite3").verbose();
+const UserApi = require("./apis/UserApi");
+const CollectionApi = require("./apis/CollectionApi");
 
 class SqliteDBApi extends DBAPI {
     _db = null;
+    user = null;
+    collection = null;
 
     constructor({url}) {
         super({url});
     }
 
-    loadApi({Api, name}) {
-        this[name] = new Api(this);
-    }
-
     open() {
         return new Promise((res, rej) => {
             this._db = new sqlite3.Database(this._url, () => {
+                this.user = new UserApi(this);
+                this.collection = new CollectionApi(this);
                 res();
             });
         });
@@ -37,6 +39,8 @@ class SqliteDBApi extends DBAPI {
 
     close() {
         this._db.close();
+        this.user = null;
+        this.collection = null;
     }
 }
 

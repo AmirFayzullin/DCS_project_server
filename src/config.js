@@ -7,5 +7,6 @@ module.exports = {
     HTTP_SERVER_PORT: 5000,
     WEB_SOCKET_SERVER_PORT: 5001,
     INPUTS_FOLDER: path.join(__dirname, "..", "files", "inputs"),
-    OUTPUTS_FOLDER: path.join(__dirname, "..", "files", "outputs")
+    OUTPUTS_FOLDER: path.join(__dirname, "..", "files", "outputs"),
+    DB_URL: path.join(__dirname, "..", "db", "db")
 };

@@ -8,13 +8,18 @@ class UserApi {
     }
 
     add = ({email, password}) => {
-        this._dbapi._db.run(`INSERT into User (email, password, Id) values ("${email}", "${password}", NULL);`);
-        return this.get({email});
+        return new Promise((res, rej) => {
+            this._dbapi._db.run(`INSERT into User (email, password, Id) values ("${email}", "${password}", NULL);`, (err) => {
+                if (err) rej(new Error("Error adding user"));
+                res();
+            });
+        })
     };
 
     get = ({email}) => {
         return new Promise((res, rej) => {
             this._dbapi._db.get(`SELECT * from User where email = ?`, [email], (err, row) => {
+                if (err) rej(new Error("Error getting user"));
                 res(row);
             });
         });
@@ -34,7 +39,7 @@ class UserApi {
                 res(row);
             });
         });
-    }
+    };
 
     createVerificationCode = ({userId, code, actionType, action = "", dateRequested}) => {
         this._dbapi._db.run(
