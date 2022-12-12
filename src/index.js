@@ -1,14 +1,7 @@
-const {DataProcessorFactory, DATA_PROCESSOR_TYPES} = require("./components/DataProcessorFactory")
-const FilesCollection = require("./components/FilesCollection/FilesCollection");
-const File = require("./components/FilesCollection/File");
-const ImagesOptimizer = require("./components/ImagesOptimizer/ImagesOptimizer");
-const JimpOptimizerStrategy = require("./components/ImagesOptimizer/JimpOptimizerStrategy");
-const Input = require("./components/Input");
-const ProcessingParameters = require("./components/ProcessingParameters");
 const SqliteDBApi = require("./components/DBAPI/SqliteDBApi");
-const sqlite3 = require("sqlite3");
 const UserApi = require("./components/DBAPI/apis/UserApi");
 const CollectionApi = require("./components/DBAPI/apis/CollectionApi");
+const {run: runHTTPServer} = require("./expressServer/expressServer");
 
 const DBAPI_CONFIG = [
     {
@@ -43,33 +36,7 @@ const initDBApi = async () => {
 
 
 const main = async () => {
-    const filesCollection = new FilesCollection({
-        dirPath: `${__dirname}/../files/inputs`,
-    });
-
-    const processingParameters = new ProcessingParameters({
-        quality: 90
-    });
-
-    const input = new Input({filesCollection, processingParameters});
-
-    const imageDataProcessor = DataProcessorFactory.createDataProcessor({
-        type: DATA_PROCESSOR_TYPES.IMAGE,
-        params: {
-            optimizer: new ImagesOptimizer({
-                strategy: new JimpOptimizerStrategy()
-            })
-        }
-    });
-
-    imageDataProcessor.read({filesCollection: input.filesCollection});
-
-    // imageDataProcessor.run({
-    //     file: new File({filePath: `${__dirname}/../files/outputs/output.pdf`}),
-    //     processingParameters
-    // });
-
-    const db = await initDBApi();
+    runHTTPServer();
 
     // const user = await db.user.add({
     //     email: "someEmail@gmail.com",

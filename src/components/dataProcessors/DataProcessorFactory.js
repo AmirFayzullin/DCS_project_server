@@ -1,4 +1,4 @@
-const ImageDataProcessor = require("./dataProcessors/ImageDataProcessor");
+const ImageDataProcessor = require("./ImageDataProcessor");
 
 const DATA_PROCESSOR_TYPES = {
     IMAGE: "IMAGE"

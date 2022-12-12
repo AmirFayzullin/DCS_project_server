@@ -55,9 +55,10 @@ class ImageDataProcessor extends DataProcessor {
         let q = quality;
         if (!q && maxSize !== null) {                    // if quality isn't stated, but we have max size, we should calc quality automatically
             q = this._defineQuality(maxSize);
-            console.log(q);
             if (q < CONFIG.MIN_IMAGE_QUALITY || q > CONFIG.MAX_IMAGE_QUALITY)
                 throw new Error(this._signString("Defining quality automatically failed"));
+        } else if (!q && !maxSize) {
+            q = 99;                 // default quality if we haven't params
         }
 
         await this._optimize(q);
@@ -76,7 +77,6 @@ class ImageDataProcessor extends DataProcessor {
     }
 
     _optimize = async (quality) => {
-        console.log(quality);
         if (quality < CONFIG.MIN_IMAGE_QUALITY || quality > CONFIG.MAX_IMAGE_QUALITY)
             throw new Error(this._signString("Quality isn't in bounds"));
         console.log(this._signString("Optimizing..."));
